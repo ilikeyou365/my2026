@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的网址导航 - 咪咕鱼风格</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6b8cbc;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-color: #333333;
+            --text-secondary: #666666;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+        }
+
+        [data-theme="dark"] {
+            --background-color: #1a1a1a;
+            --card-color: #2d2d2d;
+            --text-color: #f0f0f0;
+            --text-secondary: #aaaaaa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            min-height: 100vh;
+            padding: 20px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="rgba(255,255,255,0.1)"/></svg>');
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto 40px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 50px;
+            background-color: var(--card-color);
+            color: var(--text-color);
+            font-size: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .search-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-btn {
+            padding: 5px 15px;
+            border: none;
+            border-radius: 15px;
+            background-color: var(--secondary-color);
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .search-btn:hover, .search-btn.active {
+            background-color: var(--primary-color);
+        }
+
+        .categories {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .category {
+            padding: 8px 20px;
+            background-color: var(--card-color);
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+        }
+
+        .category.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .websites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .website-card {
+            background-color: var(--card-color);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .website-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .website-icon {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 10px;
+            background-color: var(--secondary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .website-name {
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .control-btn {
+            padding: 8px 15px;
+            background-color: var(--card-color);
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            color: var(--text-color);
+            box-shadow: var(--shadow);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--card-color);
+            padding: 30px;
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow);
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--radius);
+            background-color: var(--card-color);
+            color: var(--text-color);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .websites-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 15px;
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .controls {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">我的导航</div>
+            <div class="controls">
+                <button class="control-btn" id="addWebsiteBtn">添加网址</button>
+                <button class="control-btn" id="themeToggle">切换主题</button>
+            </div>
+        </header>
+        
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="搜索或输入网址">
+            <div class="search-buttons">
+                <button class="search-btn active" data-engine="https://www.baidu.com/s?wd=">百度</button>
+                <button class="search-btn" data-engine="https://www.google.com/search?q=">谷歌</button>
+                <button class="search-btn" data-engine="https://www.bing.com/search?q=">必应</button>
+                <button class="search-btn" data-engine="https://www.so.com/s?q=">360</button>
+            </div>
+        </div>
+        
+        <div class="categories">
+            <div class="category active" data-category="all">全部</div>
+            <div class="category" data-category="work">工作</div>
+            <div class="category" data-category="study">学习</div>
+            <div class="category" data-category="entertainment">娱乐</div>
+            <div class="category" data-category="life">生活</div>
+            <div class="category" data-category="tools">工具</div>
+        </div>
+        
+        <div class="websites-grid" id="websitesContainer">
+            <!-- 网站卡片将通过JavaScript动态生成 -->
+        </div>
+    </div>
+    
+    <!-- 添加网址的模态框 -->
+    <div class="modal" id="addWebsiteModal">
+        <div class="modal-content">
+            <h2>添加新网址</h2>
+            <form id="websiteForm">
+                <div class="form-group">
+                    <label for="websiteName">网站名称</label>
+                    <input type="text" id="websiteName" required>
+                </div>
+                <div class="form-group">
+                    <label for="websiteUrl">网站地址</label>
+                    <input type="url" id="websiteUrl" required>
+                </div>
+                <div class="form-group">
+                    <label for="websiteCategory">分类</label>
+                    <select id="websiteCategory">
+                        <option value="work">工作</option>
+                        <option value="study">学习</option>
+                        <option value="entertainment">娱乐</option>
+                        <option value="life">生活</option>
+                        <option value="tools">工具</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" id="cancelBtn">取消</button>
+                    <button type="submit" class="btn btn-primary">添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 初始网站数据
+        let websites = JSON.parse(localStorage.getItem('websites')) || [
+            { name: '百度', url: 'https://www.baidu.com', category: 'work' },
+            { name: '谷歌', url: 'https://www.google.com', category: 'work' },
+            { name: '哔哩哔哩', url: 'https://www.bilibili.com', category: 'entertainment' },
+            { name: 'GitHub', url: 'https://github.com', category: 'work' },
+            { name: '知乎', url: 'https://www.zhihu.com', category: 'study' },
+            { name: '淘宝', url: 'https://www.taobao.com', category: 'life' },
+            { name: '邮箱', url: 'https://mail.qq.com', category: 'work' },
+            { name: 'CSDN', url: 'https://www.csdn.net', category: 'study' }
+        ];
+
+        // 当前选中的搜索引擎
+        let currentSearchEngine = 'https://www.baidu.com/s?wd=';
+        
+        // DOM 元素
+        const websitesContainer = document.getElementById('websitesContainer');
+        const categories = document.querySelectorAll('.category');
+        const searchInput = document.getElementById('searchInput');
+        const searchButtons = document.querySelectorAll('.search-btn');
+        const addWebsiteBtn = document.getElementById('addWebsiteBtn');
+        const addWebsiteModal = document.getElementById('addWebsiteModal');
+        const websiteForm = document.getElementById('websiteForm');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const themeToggle = document.getElementById('themeToggle');
+
+        // 初始化页面
+        function init() {
+            renderWebsites();
+            setupEventListeners();
+            loadTheme();
+        }
+
+        // 设置事件监听
+        function setupEventListeners() {
+            // 分类筛选
+            categories.forEach(category => {
+                category.addEventListener('click', () => {
+                    categories.forEach(c => c.classList.remove('active'));
+                    category.classList.add('active');
+                    renderWebsites();
+                });
+            });
+            
+            // 搜索引擎切换
+            searchButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    searchButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    currentSearchEngine = button.getAttribute('data-engine');
+                });
+            });
+            
+            // 搜索功能
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const query = searchInput.value.trim();
+                    if (query) {
+                        // 检查是否是网址
+                        if (isUrl(query)) {
+                            window.location.href = addProtocol(query);
+                        } else {
+                            // 不是网址，使用搜索引擎搜索
+                            window.open(currentSearchEngine + encodeURIComponent(query), '_blank');
+                        }
+                    }
+                }
+            });
+            
+            // 添加网址模态框
+            addWebsiteBtn.addEventListener('click', () => {
+                addWebsiteModal.style.display = 'flex';
+            });
+            
+            cancelBtn.addEventListener('click', () => {
+                addWebsiteModal.style.display = 'none';
+            });
+            
+            // 表单提交
+            websiteForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                addNewWebsite();
+            });
+            
+            // 点击模态框外部关闭
+            addWebsiteModal.addEventListener('click', (e) => {
+                if (e.target === addWebsiteModal) {
+                    addWebsiteModal.style.display = 'none';
+                }
+            });
+            
+            // 主题切换
+            themeToggle.addEventListener('click', toggleTheme);
+        }
+
+        // 渲染网站卡片
+        function renderWebsites() {
+            const activeCategory = document.querySelector('.category.active').getAttribute('data-category');
+            const filteredWebsites = activeCategory === 'all' 
+                ? websites 
+                : websites.filter(website => website.category === activeCategory);
+            
+            websitesContainer.innerHTML = '';
+            
+            filteredWebsites.forEach(website => {
+                const card = document.createElement('div');
+                card.className = 'website-card';
+                card.innerHTML = `
+                    <div class="website-icon">${website.name.charAt(0)}</div>
+                    <div class="website-name">${website.name}</div>
+                `;
+                card.addEventListener('click', () => {
+                    window.open(website.url, '_blank');
+                });
+                
+                // 长按删除功能
+                let pressTimer;
+                card.addEventListener('mousedown', () => {
+                    pressTimer = setTimeout(() => {
+                        if (confirm(`确定要删除「${website.name}」吗？`)) {
+                            deleteWebsite(website);
+                        }
+                    }, 1000);
+                });
+                
+                card.addEventListener('mouseup', () => {
+                    clearTimeout(pressTimer);
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    clearTimeout(pressTimer);
+                });
+                
+                websitesContainer.appendChild(card);
+            });
+        }
+
+        // 添加新网站
+        function addNewWebsite() {
+            const name = document.getElementById('websiteName').value;
+            const url = document.getElementById('websiteUrl').value;
+            const category = document.getElementById('websiteCategory').value;
+            
+            if (name && url) {
+                websites.push({ name, url: addProtocol(url), category });
+                saveWebsites();
+                renderWebsites();
+                
+                // 重置表单并关闭模态框
+                websiteForm.reset();
+                addWebsiteModal.style.display = 'none';
+            }
+        }
+
+        // 删除网站
+        function deleteWebsite(websiteToDelete) {
+            websites = websites.filter(website => website !== websiteToDelete);
+            saveWebsites();
+            renderWebsites();
+        }
+
+        // 保存网站数据到本地存储
+        function saveWebsites() {
+            localStorage.setItem('websites', JSON.stringify(websites));
+        }
+
+        // 检查字符串是否是URL
+        function isUrl(string) {
+            try {
+                new URL(addProtocol(string));
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        // 为URL添加协议（如果没有）
+        function addProtocol(url) {
+            if (!/^https?:\/\//i.test(url)) {
+                return 'https://' + url;
+            }
+            return url;
+        }
+
+        // 切换主题
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // 加载保存的主题
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
